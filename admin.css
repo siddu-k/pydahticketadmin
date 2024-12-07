@@ -1,0 +1,354 @@
+/* General page styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f7fc;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 900px;
+  margin: auto;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  padding: 30px;
+}
+
+header {
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+/* Login Form Styling */
+.login-form {
+  padding: 20px;
+}
+
+.login-form h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Dashboard Styling */
+.dashboard {
+  padding: 20px;
+  display: block;
+}
+
+.dashboard h2 {
+  font-size: 26px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+#ticketsList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#ticketsList li {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#ticketsList li:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ticket-actions button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ticket-actions button:hover {
+  background-color: #218838;
+}
+
+.ticket-actions .delete-btn {
+  background-color: #dc3545;
+}
+
+.ticket-actions .delete-btn:hover {
+  background-color: #c82333;
+}
+
+.ticket-actions .view-btn,
+.ticket-actions .edit-btn {
+  background-color: #007bff;
+}
+
+.ticket-actions .view-btn:hover,
+.ticket-actions .edit-btn:hover {
+  background-color: #0056b3;
+}
+
+.ticket-actions i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* Ticket Details Styling */
+.ticket-details {
+  padding: 20px;
+  display: block;
+}
+
+.ticket-details h3 {
+  font-size: 26px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.ticket-details p {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.ticket-details select {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.ticket-details button {
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.ticket-details button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 22px;
+  }
+
+  .login-form h2 {
+    font-size: 20px;
+  }
+
+  .login-form input[type="email"],
+  .login-form input[type="password"],
+  .login-form button,
+  .ticket-details select,
+  .ticket-details button {
+    font-size: 14px;
+  }
+
+  .ticket-details p {
+    font-size: 14px;
+  }
+}
+
+/* Modal background */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensures the modal is above other content */
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Modal content box */
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 400px;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal text */
+.modal-content p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Buttons container */
+.modal-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+/* Button style */
+.modal-actions .btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Confirm button */
+.modal-actions .btn-danger {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.modal-actions .btn-danger:hover {
+  background-color: #c0392b;
+}
+
+/* Cancel button */
+.modal-actions .btn-secondary {
+  background-color: #bdc3c7;
+  color: #333;
+}
+
+.modal-actions .btn-secondary:hover {
+  background-color: #95a5a6;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Logo outside the container */
+
+.header-logo {
+  position: absolute; /* Allows free positioning */
+  top: 20px; /* Distance from the top */
+  left: 50%; /* Center horizontally */
+  transform: translateX(-50%); /* Adjust centering */
+  z-index: -1; /* Keep it above other elements */
+  text-align: center;
+}
+
+.college-logo {
+  width: 120px; /* Adjust size as needed */
+  height: auto;
+  display: block;
+}
+
+
+/* Header Section */
+header {
+  position: relative;
+}
+
+header h1 {
+  margin-top: 10px;
+}
+
+/* Font Style for College Name */
+header p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Footer Section */
+footer {
+  background-color: #f8f9fa;
+  color: #343a40;
+  padding: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Adjusting margins and paddings for other elements */
+.container {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+.text-center {
+  text-align: center;
+}

@@ -9,6 +9,11 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  font-family: 'Poppins', sans-serif; /* Modern, clean font */
+  line-height: 1.6; /* Ensures readability */
+  letter-spacing: 0.5px; /* Adds subtle space for clarity */
+  background: linear-gradient(to right, #eae8ec, #e5e6e9); /* Gradient background */
+
 }
 
 .container {
@@ -18,16 +23,37 @@ body {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #ffffff;
+
   padding: 30px;
+    overflow-y: auto;
+    max-height: 90vh;
+  
+  
+}
+
+#downloadTicketButton {
+  background-color: #000000; /* Initial button color */
+  color: white; /* Text color */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#downloadTicketButton:hover {
+  background-color: #28a745; /* Green color on hover */
 }
 
 header {
-  background-color: #007bff;
-  color: white;
+
+  background: linear-gradient(to right, #cb11af, #fc8625); /* Gradient background */
+  color: rgb(255, 255, 255);
   text-align: center;
   padding: 20px;
   border-radius: 8px 8px 0 0;
+ 
 }
 
 header h1 {
@@ -53,7 +79,7 @@ header h1 {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
-  border: 1px solid #ccc;
+  border: 2px solid #000000;
   border-radius: 8px;
   font-size: 16px;
 }
@@ -61,7 +87,7 @@ header h1 {
 .login-form button {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #000000;
   color: white;
   border: none;
   border-radius: 8px;
@@ -95,8 +121,8 @@ header h1 {
   display: flex;
   justify-content: space-between;
   padding: 12px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
+  background-color: #ffffff;
+  border: 2px solid #ddd;
   border-radius: 8px;
   margin-bottom: 12px;
   cursor: pointer;
@@ -104,7 +130,7 @@ header h1 {
 }
 
 #ticketsList li:hover {
-  background-color: #007bff;
+  background-color: #000000;
   color: white;
 }
 
@@ -177,21 +203,90 @@ header h1 {
   box-sizing: border-box;
 }
 
-.ticket-details button {
-  padding: 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
+/* Common Button Styling */
+button {
   font-size: 16px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 15px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s, transform 0.3s ease;
+
+    padding: 12px;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+  
 }
 
-.ticket-details button:hover {
-  background-color: #0056b3;
+button i {
+  margin-right: 8px; /* Space between icon and text */
 }
+
+/* Hover Effects for Different Buttons */
+#updateStatusButton:hover {
+  background-color: #28a745; /* Green on hover for Update Status */
+  transform: translateY(-3px); /* Slight lift effect */
+}
+
+#backButton:hover {
+  background-color: #6c757d; /* Gray on hover for Back Button */
+  transform: translateY(-3px); /* Slight lift effect */
+}
+
+#deleteButton:hover {
+  background-color: #dc3545; /* Red on hover for Delete Button */
+  transform: translateY(-3px); /* Slight lift effect */
+}
+
+/* Container styling */
+
+
+/* Select box styling */
+#ticketStatus {
+  padding: 12px 18px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 300px; /* Adjust width */
+}
+
+/* Focus effect on the select box */
+#ticketStatus:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+/* Option styling inside the select */
+#ticketStatus option {
+  padding: 10px;
+  background-color: #ffffff;
+  color: #333;
+  font-size: 16px;
+}
+
+/* Hover and focus effect for options */
+#ticketStatus option:hover {
+  background-color: #e9ecef;
+}
+
+/* Active state for selected option */
+#ticketStatus option:checked {
+  background-color: #007bff;
+  color: white;
+}
+
+
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -287,6 +382,18 @@ header h1 {
   background-color: #95a5a6;
 }
 
+
+.list-group-item div {
+  display: flex;
+  
+  flex-direction: column;
+}
+
+.list-group-item small.text-muted {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
 /* Fade-in animation */
 @keyframes fadeIn {
   from {
@@ -351,4 +458,16 @@ footer {
 
 .text-center {
   text-align: center;
+}
+
+/* Slide-up animation */
+.slide-up {
+  opacity: 0;
+  transform: translateY(20px); /* Initially placed below */
+  transition: all 0.5s ease-in-out; /* Smooth transition */
+}
+
+.slide-up.active {
+  opacity: 1;
+  transform: translateY(0); /* Move to the original position */
 }

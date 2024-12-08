@@ -173,3 +173,39 @@ document.getElementById("downloadTicketButton").addEventListener("click", functi
   // Download the PDF
   doc.save("ticket-details.pdf");
 });
+
+
+// References to mail button, popup, and close button
+const mailButton = document.getElementById("mailButton"); // Add this ID to your mail button
+const iframePopup = document.getElementById("iframePopup");
+const closePopup = document.getElementById("closePopup");
+
+// Show the popup when the mail button is clicked
+mailButton.addEventListener("click", () => {
+  iframePopup.style.display = "flex";
+});
+
+// Close the popup when the close button is clicked
+closePopup.addEventListener("click", () => {
+  iframePopup.style.display = "none";
+});
+
+// Close the popup when clicking outside the content
+window.addEventListener("click", (e) => {
+  if (e.target === iframePopup) {
+    iframePopup.style.display = "none";
+  }
+});
+
+// Get the email element and the copy button
+const copyEmailButton = document.getElementById("copyEmailButton");
+
+// Copy the email to clipboard when the button is clicked
+copyEmailButton.addEventListener("click", () => {
+  const email = document.getElementById("ticketEmail").textContent; // Assume ticketEmail contains the email
+  navigator.clipboard.writeText(email).then(() => {
+    alert("Email copied to clipboard!");
+  }).catch((err) => {
+    alert("Failed to copy email: " + err);
+  });
+});

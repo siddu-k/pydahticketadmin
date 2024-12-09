@@ -2,72 +2,108 @@ import { db, auth } from './firebaseConfig.js';
 import { collection, getDocs, getDoc, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js";
 import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';
 
+// Utility to show and hide elements
+function toggleVisibility(element, shouldShow) {
+  element.style.display = shouldShow ? 'block' : 'none';
+}
+
+// Utility to show loading spinner
+function setLoadingState(isLoading) {
+  const spinner = document.getElementById('loadingSpinner');
+  toggleVisibility(spinner, isLoading);
+}
+
 // Login functionality
 document.getElementById('loginButton').addEventListener('click', async () => {
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
   try {
-    // Firebase authentication
     await signInWithEmailAndPassword(auth, username, password);
-
-    // If login is successful, hide login form and show dashboard
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    fetchTickets(); // Fetch tickets from Firestore
+    fetchAllTickets(); // Default to fetching all tickets after login
   } catch (error) {
     alert('Invalid credentials!');
     console.error('Authentication error:', error.message);
   }
 });
 
-// Fetch tickets from Firestore
-async function fetchTickets() {
+// Fetch and display tickets
+async function fetchTickets(pinnedOnly = false) {
+  setLoadingState(true);
+
   const ticketsCollection = collection(db, 'tickets');
   const ticketSnapshot = await getDocs(ticketsCollection);
   const ticketList = document.getElementById('ticketsList');
-  ticketList.innerHTML = ''; // Clear the previous list
+  const noTicketsPlaceholder = document.getElementById('noTicketsPlaceholder');
 
+  ticketList.innerHTML = ''; // Clear previous list
+  let hasTickets = false;
+
+  // Create an array of tickets from the snapshot
+  const ticketsArray = [];
   ticketSnapshot.forEach(doc => {
     const ticket = doc.data();
-    const listItem = document.createElement('li');
-    listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-
-    // Process timestamp field
-    let formattedTimestamp = 'No Timestamp';
-    if (ticket.timestamp) {
-      try {
-        if (ticket.timestamp.seconds) {
-          // Firestore Timestamp object
-          formattedTimestamp = new Date(ticket.timestamp.seconds * 1000).toLocaleString();
-        } else {
-          // String-based timestamp
-          const parsedDate = new Date(ticket.timestamp);
-          if (!isNaN(parsedDate)) {
-            formattedTimestamp = parsedDate.toLocaleString();
-          }
-        }
-      } catch (error) {
-        console.error('Error formatting timestamp:', error);
-      }
-    }
-
-    // Create ticket details string
-    listItem.textContent = `${ticket.name} - ${ticket.subject}`;
-    const timestampSpan = document.createElement('span');
-    timestampSpan.classList.add('badge', 'bg-secondary', 'text-white');
-    timestampSpan.textContent = formattedTimestamp;
-
-    // Add timestamp to list item
-    listItem.appendChild(timestampSpan);
-
-    // Set up event listener to show ticket details
-    listItem.setAttribute('data-id', doc.id);
-    listItem.addEventListener('click', () => showTicketDetails(doc.id));
-
-    // Append the ticket to the list
-    ticketList.appendChild(listItem);
+    ticketsArray.push({ ...ticket, id: doc.id });
   });
+
+  // Sort tickets by timestamp in descending order (newest first)
+  ticketsArray.sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds);
+
+  // Display tickets based on sorted order
+  ticketsArray.forEach(ticket => {
+    if (!pinnedOnly || ticket.isPinned) {
+      hasTickets = true;
+      const listItem = createTicketListItem(ticket, ticket.id, ticket.isPinned);
+      ticketList.appendChild(listItem);
+    }
+  });
+
+  toggleVisibility(noTicketsPlaceholder, !hasTickets);
+  setLoadingState(false);
+}
+
+// Fetch all tickets
+function fetchAllTickets() {
+  fetchTickets(false);
+}
+
+// Fetch pinned tickets
+function fetchPinnedTickets() {
+  fetchTickets(true);
+}
+
+// Create a ticket list item
+function createTicketListItem(ticket, docId, isPinned) {
+  const listItem = document.createElement('li');
+  listItem.classList.add('ticket-item');
+  
+  const timestamp = ticket.timestamp?.seconds ? new Date(ticket.timestamp.seconds * 1000).toLocaleString() : 'No Timestamp';
+
+  listItem.textContent = `${ticket.name} - ${ticket.subject}`;
+
+  // Create pin icon and set initial class based on pin state
+  const pinIcon = document.createElement('i');
+  pinIcon.classList.add('fa', 'fa-thumbtack', 'pin-icon');
+  pinIcon.classList.add(isPinned ? 'pinned' : 'unpinned');  // Add appropriate class based on pin state
+  pinIcon.style.cursor = 'pointer';
+
+  pinIcon.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await updateDoc(doc(db, 'tickets', docId), { isPinned: !isPinned });
+    isPinned ? fetchPinnedTickets() : fetchAllTickets();
+  });
+
+  const timestampSpan = document.createElement('span');
+  timestampSpan.classList.add('badge', 'bg-secondary', 'text-white', 'timestamp');
+  timestampSpan.textContent = timestamp;
+
+  listItem.append(pinIcon, timestampSpan);
+  listItem.setAttribute('data-id', docId);
+  listItem.addEventListener('click', () => showTicketDetails(docId));
+
+  return listItem;
 }
 
 // Show ticket details
@@ -83,15 +119,14 @@ async function showTicketDetails(ticketId) {
   document.getElementById('ticketPin').textContent = ticket.pin || 'N/A';
   document.getElementById('ticketProblem').textContent = ticket.problem || 'N/A';
 
-  const statusDropdown = document.getElementById('ticketStatus');
-  statusDropdown.value = ticket.status || 'On Hold';
-
+  // Set ticket ID as a data attribute for status updates
   document.getElementById('ticketDetails').setAttribute('data-id', ticketId);
+
   document.getElementById('ticketDetails').style.display = 'block';
   document.getElementById('dashboard').style.display = 'none';
 }
 
-// Back button
+// Back button logic
 document.getElementById('backButton').addEventListener('click', () => {
   document.getElementById('ticketDetails').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
@@ -106,7 +141,7 @@ document.getElementById('updateStatusButton').addEventListener('click', async ()
     const ticketRef = doc(db, 'tickets', ticketId);
     await updateDoc(ticketRef, { status: newStatus });
     alert('Status updated successfully!');
-    fetchTickets();
+    fetchAllTickets();
     document.getElementById('ticketDetails').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
   } catch (error) {
@@ -115,36 +150,35 @@ document.getElementById('updateStatusButton').addEventListener('click', async ()
   }
 });
 
-// Delete ticket functionality
-let ticketToDelete = null;
+// Event listeners for filtering tickets
+document.getElementById('showPinnedButton').addEventListener('click', fetchPinnedTickets);
+document.getElementById('showAllTicketsButton').addEventListener('click', fetchAllTickets);
 
-document.getElementById('deleteButton').addEventListener('click', () => {
-  ticketToDelete = document.getElementById('ticketDetails').getAttribute('data-id');
-  document.getElementById('deleteModal').style.display = 'flex';
-});
+// Set default visibility
+toggleVisibility(document.getElementById('dashboard'), false);
 
-document.getElementById('confirmDelete').addEventListener('click', async () => {
-  if (ticketToDelete) {
-    try {
-      await deleteDoc(doc(db, 'tickets', ticketToDelete));
-      alert('Ticket deleted successfully!');
-      fetchTickets();
-      document.getElementById('ticketDetails').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-    } catch (error) {
-      console.error('Error deleting ticket:', error);
-      alert('Failed to delete ticket.');
+// Filter tickets by PIN
+document.getElementById('searchPinInput').addEventListener('input', async (event) => {
+  const searchValue = event.target.value.trim(); // Get the entered PIN
+  const ticketsCollection = collection(db, 'tickets');
+  const ticketSnapshot = await getDocs(ticketsCollection);
+  const ticketList = document.getElementById('ticketsList');
+  const noTicketsPlaceholder = document.getElementById('noTicketsPlaceholder');
+
+  ticketList.innerHTML = ''; // Clear previous list
+  let hasTickets = false;
+
+  ticketSnapshot.forEach(doc => {
+    const ticket = doc.data();
+    if (ticket.pin && ticket.pin.toLowerCase().includes(searchValue.toLowerCase())) {
+      hasTickets = true;
+      const listItem = createTicketListItem(ticket, doc.id, ticket.isPinned);
+      ticketList.appendChild(listItem);
     }
-    ticketToDelete = null;
-  }
-  closeModal();
+  });
+
+  toggleVisibility(noTicketsPlaceholder, !hasTickets); // Show placeholder if no tickets
 });
-
-document.getElementById('cancelDelete').addEventListener('click', closeModal);
-
-function closeModal() {
-  document.getElementById('deleteModal').style.display = 'none';
-}
 
 // Function to generate PDF from ticket content
 document.getElementById("downloadTicketButton").addEventListener("click", function () {
@@ -174,9 +208,8 @@ document.getElementById("downloadTicketButton").addEventListener("click", functi
   doc.save("ticket-details.pdf");
 });
 
-
-// References to mail button, popup, and close button
-const mailButton = document.getElementById("mailButton"); // Add this ID to your mail button
+// Mail popup handling
+const mailButton = document.getElementById("mailButton");
 const iframePopup = document.getElementById("iframePopup");
 const closePopup = document.getElementById("closePopup");
 
@@ -197,12 +230,9 @@ window.addEventListener("click", (e) => {
   }
 });
 
-// Get the email element and the copy button
-const copyEmailButton = document.getElementById("copyEmailButton");
-
-// Copy the email to clipboard when the button is clicked
-copyEmailButton.addEventListener("click", () => {
-  const email = document.getElementById("ticketEmail").textContent; // Assume ticketEmail contains the email
+// Copy email to clipboard
+document.getElementById("copyEmailButton").addEventListener("click", () => {
+  const email = document.getElementById("ticketEmail").textContent;
   navigator.clipboard.writeText(email).then(() => {
     alert("Email copied to clipboard!");
   }).catch((err) => {
